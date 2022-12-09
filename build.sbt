@@ -8,5 +8,6 @@ lazy val root = project
   .in(file("."))
   .settings(
     name := "advent-of-code",
-    libraryDependencies += Munit % Test
+    libraryDependencies += Munit % Test,
+    libraryDependencies += "org.typelevel" %% "cats-core" % "2.9.0"
   )
