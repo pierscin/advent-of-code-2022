@@ -33,7 +33,7 @@ object Day12 extends App {
                 c + dc >= 0 &&
                 m(r + dr)(c + dc) - m(r)(c) <= 1) {
 
-                if ((r + dr, c + dc) == e)
+                if (((r + dr),(c + dc)) == e)
                   return steps + 1
                 else
                   q += ((r + dr, c + dc))
@@ -49,7 +49,7 @@ object Day12 extends App {
       steps += 1
     }
 
-    throw new IllegalArgumentException
+    Int.MaxValue
   }
 
   val testInput = """Sabqponm
@@ -71,6 +71,25 @@ object Day12 extends App {
   }
 
   val M = testInput.map(_.toCharArray)
+  val e = find2d(M, 'E')
+  val s = find2d(M, 'S')
+  println(solve(M, s, e))
 
-  println(solve(M, find2d(M, 'S'), find2d(M, 'E')))
+  //part two
+//  println(findAllIndicesOf(M, 'a').map{ case (r, c) => {
+//    solve(M, (r, c), e)
+//  }}.filter(_ != Int.MaxValue).min)
+
+  def findAllIndicesOf(m: Array[Array[Char]], x: Char): List[(Int, Int)] = {
+    val res = mutable.ArrayBuffer.empty[(Int, Int)]
+
+    for {
+      r <- m.indices
+      c <- m.head.indices
+    } {
+      if (m(r)(c) == x) res += ((r, c))
+    }
+
+    res.toList
+  }
 }
