@@ -30,8 +30,9 @@ object Day9 extends App {
 
     visited += ((0, 0))
 
-    def diffTuples(a: (Int, Int), b: (Int, Int)): (Int, Int) = {
-      (a._1 - b._1, a._2 - b._2)
+    def updateSegment(i: Int) = {
+      val diff = diffTuples(rope(i - 1), rope(i))
+      rope(i) = rope(i) |+| dhToDt(diff)
     }
 
     inputs
@@ -39,20 +40,11 @@ object Day9 extends App {
       .foreach { case Array(dir, n) =>
         (0 until n.toInt).foreach { _ =>
           {
-            val dh =
-              dir match {
-                case "R" => (0, 1)
-                case "L" => (0, -1)
-                case "U" => (1, 0)
-                case "D" => (-1, 0)
-              }
+            val dh = directionToUnitVector(dir)
 
             rope(0) = rope(0) |+| dh
 
-            for (i <- 1 until length) {
-              val diff = diffTuples(rope(i - 1), rope(i))
-              rope(i) = rope(i) |+| dhToDt(diff)
-            }
+            (1 until length).foreach(updateSegment)
 
             visited += rope.last
           }
@@ -60,6 +52,19 @@ object Day9 extends App {
       }
 
     visited.size
+  }
+
+  private def directionToUnitVector(dir: String) = {
+    dir match {
+      case "R" => (0, 1)
+      case "L" => (0, -1)
+      case "U" => (1, 0)
+      case "D" => (-1, 0)
+    }
+  }
+
+  private def diffTuples(a: (Int, Int), b: (Int, Int)): (Int, Int) = {
+    (a._1 - b._1, a._2 - b._2)
   }
 
   val testInput = """R 4
