@@ -26,28 +26,26 @@ object Day9 extends App {
       (-2, -2) -> (-1, -1),
       (-2, 2) -> (-1, 1),
       (2, -2) -> (1, -1)
-    ).withDefaultValue((0,0))
+    ).withDefaultValue((0, 0))
 
     visited += ((0, 0))
 
-    def updateSegment(i: Int) = {
+    def updateSegment(i: Int): Unit = {
       val diff = diffTuples(rope(i - 1), rope(i))
       rope(i) = rope(i) |+| dhToDt(diff)
     }
 
     inputs
       .map(_.split(" "))
-      .foreach { case Array(dir, n) =>
-        (0 until n.toInt).foreach { _ =>
-          {
-            val dh = directionToUnitVector(dir)
+      .foreach { case Array(dir, stepsInThatDir) =>
+        (0 until stepsInThatDir.toInt).foreach { _ =>
+          val dh = directionToUnitVector(dir)
 
-            rope(0) = rope(0) |+| dh
+          rope(0) = rope(0) |+| dh
 
-            (1 until length).foreach(updateSegment)
+          (1 until length).foreach(updateSegment)
 
-            visited += rope.last
-          }
+          visited += rope.last
         }
       }
 
