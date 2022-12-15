@@ -41,7 +41,13 @@ object Day15 extends App {
     (a._1 - b._1, a._2 - b._2)
   }
 
-  def solve(input: Seq[String], row: Int) = {
+  def md(a: (Int, Int), b: (Int, Int)) = {
+    val diff = diffTuples(a, b)
+
+    diff._1.abs + diff._2.abs
+  }
+
+  def part1(input: Seq[String], row: Int) = {
     val beacons = mutable.ArrayBuffer.empty[(Int, Int)]
     val sensors = mutable.ArrayBuffer.empty[(Int, Int)]
 
@@ -52,12 +58,10 @@ object Day15 extends App {
 
     val all = (beacons.toSet ++ sensors.toSet)
 
-    val M = mutable.Map.empty[Int, Set[Int]].withDefaultValue(Set.empty[Int])
+    val res = mutable.Set.empty[Int]
 
     (beacons zip sensors).foreach { case (b, s) =>
-      val manDistance = diffTuples(s, b)
-
-      val d = manDistance._1.abs + manDistance._2.abs
+      val d = md(s, b)
 
       for {
         r <- -d to d if s._2 + r == row
@@ -67,22 +71,56 @@ object Day15 extends App {
         fr = s._2 + r
       } {
         if (!all.contains((fc, fr))) {
-          M(fr) = M(fr) + fc
+          res += fc
         }
       }
     }
 
-    M(row).size
+    res.size
+  }
+
+  def part2(input: Seq[String]): Long = {
+    val sensorToRadius = input
+      .map(parseLine)
+      .map { case sensor :: beacon :: Nil =>
+        (sensor._1, sensor._2) -> md(sensor, beacon)
+      }
+      .toMap
+
+    val sensors = sensorToRadius.keys
+
+    val aCoeffs = mutable.Set.empty[Int]
+    val bCoeffs = mutable.Set.empty[Int]
+
+    sensorToRadius.foreach { case ((x, y), r) =>
+      aCoeffs ++= List(y - x + r + 1, y - x - r - 1)
+      bCoeffs ++= List(y + x + r + 1, y + x - r - 1)
+    }
+
+    val limit = 4000000L
+
+    for {
+      a <- aCoeffs
+      b <- bCoeffs
+    } {
+      val p = List((b - a) / 2, (a + b) / 2)
+      if (
+        p.forall(c => 0 < c && c < limit) &&
+        sensors.forall(s => md((p.head, p.last), s) > sensorToRadius(s))
+      ) {
+        return limit * p.head + p.last
+      }
+    }
+    -1
   }
 
   val tinyInput = List("Sensor at x=8, y=7: closest beacon is at x=2, y=10")
 
-  println(solve(testInput, 10))
+  println(part1(testInput, 10))
 
   println(
-    solve(
-      scala.io.Source.fromResource("day15_in.txt").getLines().toList,
-      2000000
+    part2(
+      scala.io.Source.fromResource("day15_in.txt").getLines().toList
     )
   )
 }
