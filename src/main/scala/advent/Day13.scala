@@ -16,7 +16,7 @@ object Day13 extends App {
     s.replace("10", ('9' + 1).toChar.toString) // There are '10' in input... Has to be something bigger than '9'
   }
 
-  def suite(input: Seq[String]) = {
+  def part1(input: Seq[String]) = {
     var res = 0
 
     for (i <- 0 until(input.size, 3)) {
@@ -26,6 +26,18 @@ object Day13 extends App {
     }
 
     res
+  }
+
+  def part2(input: Seq[String]) = {
+    val key1 = "[[2]]"
+    val key2 = "[[6]]"
+
+    val withDecodingKeys = key1 :: key2 :: input.filter(_.nonEmpty).toList
+    val withoutTens = withDecodingKeys.map(replaceTens)
+
+    val sorted = withoutTens.sortWith(solve)
+
+    (sorted.indexOf(key1) + 1) * (sorted.indexOf(key2) + 1)
   }
 
   val testInput =
@@ -54,6 +66,6 @@ object Day13 extends App {
       |[1,[2,[3,[4,[5,6,0]]]],8,9]
       |""".stripMargin.split("\n")
 
-  println(suite(testInput))
-//  println(suite(scala.io.Source.fromResource("day13_in.txt").getLines().toList))
+  println(part2(testInput))
+  println(part2(scala.io.Source.fromResource("day13_in.txt").getLines().toList))
 }
