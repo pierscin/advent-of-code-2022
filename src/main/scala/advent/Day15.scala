@@ -63,15 +63,18 @@ object Day15 extends App {
     (beacons zip sensors).foreach { case (b, s) =>
       val d = md(s, b)
 
-      for {
-        r <- -d to d if s._2 + r == row
-        x = d - r.abs
-        c <- -x to x
-        fc = s._1 + c
-        fr = s._2 + r
-      } {
-        if (!all.contains((fc, fr))) {
-          res += fc
+      if (-d <= row - s._2 && d >= row - s._2) {
+        val y = row - s._2
+        val radius = d - y.abs
+
+        for {
+          x <- -radius to radius
+          _x = s._1 + x
+          _y = s._2 + y
+        } {
+          if (!all.contains((_x, _y))) {
+            res += _x
+          }
         }
       }
     }
@@ -79,7 +82,7 @@ object Day15 extends App {
     res.size
   }
 
-  def part2(input: Seq[String]): Long = {
+  def part2(input: Seq[String], limit: Int): Long = {
     val sensorToRadius = input
       .map(parseLine)
       .map { case sensor :: beacon :: Nil =>
@@ -89,6 +92,34 @@ object Day15 extends App {
 
     val sensors = sensorToRadius.keys
 
+    val (aCoeffs, bCoeffs) = coefficientsOfLinesOutsideSensorRadius(
+      sensorToRadius
+    )
+
+    for {
+      a <- aCoeffs
+      b <- bCoeffs
+    } {
+      val intersectionPoint = List((b - a) / 2, (a + b) / 2)
+
+      if (
+        intersectionPoint.forall(coord => 0 < coord && coord < limit) &&
+        sensors.forall(s =>
+          md(
+            (intersectionPoint.head, intersectionPoint.last),
+            s
+          ) > sensorToRadius(s)
+        )
+      ) {
+        return 4000000L * intersectionPoint.head + intersectionPoint.last
+      }
+    }
+    -1
+  }
+
+  private def coefficientsOfLinesOutsideSensorRadius(
+      sensorToRadius: Map[(Int, Int), Int]
+  ): (Set[Int], Set[Int]) = {
     val aCoeffs = mutable.Set.empty[Int]
     val bCoeffs = mutable.Set.empty[Int]
 
@@ -97,30 +128,25 @@ object Day15 extends App {
       bCoeffs ++= List(y + x + r + 1, y + x - r - 1)
     }
 
-    val limit = 4000000L
-
-    for {
-      a <- aCoeffs
-      b <- bCoeffs
-    } {
-      val p = List((b - a) / 2, (a + b) / 2)
-      if (
-        p.forall(c => 0 < c && c < limit) &&
-        sensors.forall(s => md((p.head, p.last), s) > sensorToRadius(s))
-      ) {
-        return limit * p.head + p.last
-      }
-    }
-    -1
+    (aCoeffs.toSet, bCoeffs.toSet)
   }
 
   val tinyInput = List("Sensor at x=8, y=7: closest beacon is at x=2, y=10")
 
   println(part1(testInput, 10))
-
   println(
-    part2(
-      scala.io.Source.fromResource("day15_in.txt").getLines().toList
+    part1(
+      scala.io.Source.fromResource("day15_in.txt").getLines().toList,
+      2000000
     )
   )
+
+  println(part2(testInput, 20))
+  println(
+    part2(
+      scala.io.Source.fromResource("day15_in.txt").getLines().toList,
+      4000000
+    )
+  )
+
 }
