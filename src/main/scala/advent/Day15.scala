@@ -64,16 +64,15 @@ object Day15 extends App {
       val d = md(s, b)
 
       if (-d <= row - s._2 && d >= row - s._2) {
-        val y = row - s._2
-        val radius = d - y.abs
+        val radius = d - (row - s._2).abs
+        val y = row
 
         for {
-          x <- -radius to radius
-          _x = s._1 + x
-          _y = s._2 + y
+          r <- -radius to radius
+          x = s._1 + r
         } {
-          if (!all.contains((_x, _y))) {
-            res += _x
+          if (!all.contains((x, y))) {
+            res += x
           }
         }
       }
@@ -148,5 +147,4 @@ object Day15 extends App {
       4000000
     )
   )
-
 }
